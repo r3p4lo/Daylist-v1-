@@ -43,12 +43,15 @@ func main() {
 
 	// 5. Ticker animasi transisi (~60fps) — murni UI thread, aman.
 	done := make(chan struct{})
-	tk := time.NewTicker(16 * time.Millisecond)
+	tk := time.NewTicker(16 * time.Millisecond) // animasi transisi (~60fps)
+	tkSec := time.NewTicker(time.Second)        // render countdown Focus Mode (1 Hz)
 	go func() {
 		for {
 			select {
 			case <-tk.C:
 				_ = nav.TickAnim()
+			case <-tkSec.C:
+				a.Tick() // memanggil callback yang dipasang layar aktif
 			case <-done:
 				return
 			}

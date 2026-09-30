@@ -8,7 +8,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 
 	mtheme "mastermap/internal/theme"
@@ -55,6 +54,3 @@ func BuildSettings(sh *Shell) fyne.CanvasObject {
 }
 
 // showToast — konfirmasi singkat ala snackbar Material.
-func showToast(sh *Shell, msg string) {
-	dialog.ShowInformation("Master Map", msg, sh.Win)
-}

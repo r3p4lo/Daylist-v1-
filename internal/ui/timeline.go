@@ -3,12 +3,13 @@
 // ----------------------------------------------------------------------------
 // Menampilkan rantai TimeBlock hari ini sebagai garis waktu vertikal dengan
 // color-coding kategori (warna identitas BAGIAN 1). Fitur utama:
-//   • "Susun dengan Engine" → memanggil Dynamic Time-boxing Engine (LANGKAH 5)
+//   - "Susun dengan Engine" → memanggil Dynamic Time-boxing Engine (LANGKAH 5)
 //     untuk sub-task aktif pada project yang dipilih, menghormati budget
 //     energi harian DailyPlan (anti satu kategori menyedot semua energi).
-//   • User dapat OVERRIDE: memilih durasi manual sebelum menyimpan → tercatat
+//   - User dapat OVERRIDE: memilih durasi manual sebelum menyimpan → tercatat
 //     Source = USER_OVERRIDE (aturan BAGIAN 2: terima ATAU override).
-//   • Tap blok PLANNED → masuk Focus Mode; blok ACTIVE diberi penanda.
+//   - Tap blok PLANNED → masuk Focus Mode; blok ACTIVE diberi penanda.
+//
 // ============================================================================
 package ui
 
@@ -74,7 +75,7 @@ func BuildTimeline(sh *Shell) fyne.CanvasObject {
 		container.NewHBox(btnTheme))
 
 	// ---------- Daftar blok (atau empty-state) ----------
-// Blok dibangun sebagai kartu VBox dalam scroll — kontrol tampilan penuh
+	// Blok dibangun sebagai kartu VBox dalam scroll — kontrol tampilan penuh
 	// (emoji + warna kategori) lebih presisi daripada widget.List.
 	rows := make([]fyne.CanvasObject, 0, len(blocks)+2)
 	if len(blocks) == 0 {

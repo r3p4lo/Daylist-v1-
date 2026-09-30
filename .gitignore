@@ -4,3 +4,7 @@ dist/
 build/
 *.log
 node_modules/
+*.db
+*.db-shm
+*.db-wal
+desktop

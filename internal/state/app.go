@@ -30,6 +30,9 @@ type App struct {
 
 	NavMu sync.Mutex // guard navigasi agar transisi tidak bertumpuk
 
+	tickMu sync.Mutex // guard callback ticker 1 Hz
+	onTick func()     // dipasang oleh layar Focus Mode (lihat SetTick)
+
 	// ActiveTimer — status Focus Mode saat ini (diisi dari DB saat resume).
 	ActiveTimer TimerState
 }
@@ -112,6 +115,32 @@ func (a *App) ToggleDarkMode(refreshAll func()) {
 	_ = a.SetSetting(model.SettDarkMode, boolStr(*a.DarkMode))
 	if refreshAll != nil {
 		refreshAll()
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Tick hook — callback 1 detik yang dipasang layar aktif (Focus Mode).
+// main.go memanggil Tick() dari goroutine ticker; kita marshaling ke UI
+// thread dengan fyne.Do agar mutasi widget aman.
+// -----------------------------------------------------------------------------
+
+// SetTick memasang (atau menghapus dengan nil) callback per-tick.
+func (a *App) SetTick(fn func()) {
+	a.tickMu.Lock()
+	a.onTick = fn
+	a.tickMu.Unlock()
+}
+
+// Tick dieksekusi oleh ticker app (1 Hz) — dipakai Focus Mode untuk
+// me-render selisih timestamp tanpa pernah jadi sumber kebenaran.
+// Catatan: pada Fyne v2.5 pembaruan widget dari goroutine lain di-refresh
+// lewat canvas.Refresh (thread-safe); kita tetap memakai lock utk membaca fn.
+func (a *App) Tick() {
+	a.tickMu.Lock()
+	fn := a.onTick
+	a.tickMu.Unlock()
+	if fn != nil {
+		fn()
 	}
 }
 

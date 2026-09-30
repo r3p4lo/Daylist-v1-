@@ -99,10 +99,15 @@ func BuildMasterMap(sh *Shell) fyne.CanvasObject {
 		sh.Nav.Push("settings", "Pengaturan", func() fyne.CanvasObject { return BuildSettings(sh) })
 	})
 	btnSettings.Importance = widget.LowImportance
+	// Akses cepat ke Daily Timeline (BAGIAN 4 layar #4).
+	btnTimeline := widget.NewButtonWithIcon("", theme.FolderOpenIcon(), func() {
+		sh.Nav.Push("timeline", "Timeline Hari Ini", func() fyne.CanvasObject { return BuildTimeline(sh) })
+	})
+	btnTimeline.Importance = widget.LowImportance
 
 	header := container.NewBorder(nil, nil,
 		container.NewVBox(title, dateTxt),
-		container.NewHBox(btnTheme, btnSettings))
+		container.NewHBox(btnTheme, btnTimeline, btnSettings))
 
 	// ---------- Kartu 6 kategori (grid responsif) ----------------------------
 	cards := make([]fyne.CanvasObject, 0, len(mtheme.OrderedPalette))

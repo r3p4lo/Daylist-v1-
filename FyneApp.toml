@@ -1,0 +1,7 @@
+Website = "https://example.com/mastermap"
+
+[Details]
+Name = "Master Map Life Planner"
+ID = "com.mastermap.lifeplanner"
+Version = "1.0.0"
+Build = 1
