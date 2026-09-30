@@ -103,3 +103,4 @@ Lokasi DB: desktop `~/.mastermap/mastermap.db` • Android `files:///data/data/<
 - **Engine**: bobot kognitif (Ringan 15–30 mnt / Sedang 45–60 / Berat 50–90) menentukan panjang blok & jeda; `PlanWithBudget` memotong rantai sesuai budget energi harian agar satu kategori tidak menyedot semua waktu.
 - **Tema**: satu sumber kebenaran `*bool` dark-mode → seluruh widget (kartu, bar, chip) ikut berganti instan, preferensi persist di tabel `app_settings`.
 - **Modularitas data**: setiap tabel anak menyimpan `category_key` → query & operasi per kategori terisolasi, tidak saling mengganggu.
+# Daylist-v1-
