@@ -59,6 +59,13 @@ type animJob struct {
 	done  func()
 }
 
+// screenEntry — satu entri pada stack navigasi.
+type screenEntry struct {
+	key   string
+	title string
+	b     ScreenBuilder
+}
+
 // Navigator — mengelola konten window + animasi transisi.
 type Navigator struct {
 	win     fyne.Window
@@ -68,6 +75,7 @@ type Navigator struct {
 	dark    *bool
 	reg     *Registry
 	anim    *animJob
+	stack   []screenEntry // stack halaman utk navigasi mundur (Pop)
 }
 
 // NewNavigator membuat navigator untuk satu window.
@@ -82,6 +90,7 @@ func NewNavigator(win fyne.Window, dark *bool, reg *Registry) *Navigator {
 // Push memasang layar baru (dengan animasi bila sudah ter-layout).
 func (n *Navigator) Push(key, title string, b ScreenBuilder) {
 	n.reg.Register(key, b)
+	n.stack = append(n.stack, screenEntry{key: key, title: title, b: b})
 	content := b()
 	if title != "" {
 		n.win.SetTitle("Master Map • " + title)
@@ -137,6 +146,30 @@ func (n *Navigator) swap(c fyne.CanvasObject) {
 	c.Resize(n.root.Size())
 	n.current = c
 	canvas.Refresh(n.root)
+}
+
+// Pop kembali ke layar sebelumnya dengan animasi geser terbalik.
+func (n *Navigator) Pop() {
+	if len(n.stack) == 0 {
+		return
+	}
+	last := n.stack[len(n.stack)-1]
+	n.stack = n.stack[:len(n.stack)-1]
+	prev := n.stack[len(n.stack)-1]
+	n.reg.Register(prev.key, prev.b)
+	content := prev.b()
+	n.win.SetTitle("Master Map • " + prev.title)
+	size := n.root.Size()
+	if size.Width < 10 || n.current == nil {
+		n.swap(content)
+		return
+	}
+	// Geser masuk dari kiri — terasa seperti "mundur" dalam stack.
+	content.Move(fyne.NewPos(-size.Width, 0))
+	content.Resize(size)
+	n.root.Add(content)
+	n.anim = &animJob{obj: content, from: -size.Width, steps: 24, done: func() { n.swap(content) }}
+	_ = last
 }
 
 // HeaderBar — app bar material: tombol kembali + judul + aksi kanan.

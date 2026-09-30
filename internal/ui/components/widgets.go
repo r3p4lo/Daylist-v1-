@@ -352,3 +352,12 @@ func SectionTitle(text string, dark bool) fyne.CanvasObject {
 	t.TextStyle = fyne.TextStyle{Bold: true}
 	return t
 }
+
+// Spacer — pengisi vertikal transparan setinggi h px (grid 4-pt Material).
+// Dipakai lintas layar untuk ritme antar kartu.
+func Spacer(h float32) fyne.CanvasObject {
+r := canvas.NewRectangle(color.Transparent)
+r.Resize(fyne.NewSize(1, h))
+r.SetMinSize(fyne.NewSize(1, h))
+return r
+}

@@ -16,6 +16,7 @@ package ui
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -39,6 +40,21 @@ type Shell struct {
 	Win fyne.Window
 }
 
+// toggleTheme — ganti Mode Terang/Gelap lalu bangun ulang layar aktif,
+// sehingga seluruh teks kustom (canvas.Text) ikut warna mode baru.
+func (sh *Shell) toggleTheme() {
+	sh.App.ToggleDarkMode(func() { sh.Nav.Reload() })
+}
+
+// longDate — label tanggal humanis berbahasa Indonesia di header Home.
+func longDate() string {
+	idn := []string{"Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"}
+	names := []string{"Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli",
+		"Agustus", "September", "Oktober", "November", "Desember"}
+	now := time.Now()
+	return fmt.Sprintf("%s, %d %s %d", idn[int(now.Weekday())], now.Day(), names[now.Month()-1], now.Year())
+}
+
 // catStats — agregasi ringan untuk kartu kategori.
 type catStats struct {
 	subs     int64
@@ -58,8 +74,6 @@ func statsFor(gdb *gorm.DB, key model.CategoryKey) catStats {
 	gdb.Model(&model.SubTask{}).
 		Joins("JOIN projects ON projects.id = sub_tasks.project_id").
 		Where("projects.category_key = ? AND sub_tasks.is_checked = 1", key).Count(&s.done)
-	var sec sql-null-safe
-	_ = sec
 	var agg struct{ A int64 }
 	gdb.Model(&model.Project{}).Select("COALESCE(SUM(actual_total_sec),0) AS a").
 		Where("category_key = ?", key).Scan(&agg)
@@ -134,10 +148,7 @@ func categoryCard(sh *Shell, cc *mtheme.CatColor) fyne.CanvasObject {
 		container.NewVBox(name, meta))
 
 	body := container.NewVBox(headRow, components.Spacer(8), bar)
-	card := components.NewCard(sh.App.DarkMode,
-		func(d bool) colorTint { return cc.CardTint(d) },
-		func(d bool) colorAccent { return cc.Accent(d) },
-		body)
+	card := components.NewCard(sh.App.DarkMode, cc.CardTint, cc.Accent, body)
 
 	// Klik kartu → buka halaman detail modul (kategori) tersebut.
 	btnTap := widget.NewButton("", func() {
@@ -147,7 +158,8 @@ func categoryCard(sh *Shell, cc *mtheme.CatColor) fyne.CanvasObject {
 		})
 	})
 	btnTap.Importance = widget.LowImportance
-	return container.NewStack(card, layoutFill{btnTap})
+	// Tombol transparan mengisi seluruh kartu → kartu bisa diklik di mana saja.
+	return container.NewStack(card, container.NewMax(btnTap))
 }
 
 // openQuickAddQuest — dialog pembuatan QUEST baru. Jika preferCat kosong,
@@ -175,7 +187,7 @@ func openQuickAddQuest(sh *Shell, preferCat model.CategoryKey) {
 		subSel := widget.NewSelect(subNames, nil)
 		subSel.SetSelected(subNames[0])
 		estEntry := widget.NewEntry()
-		estEntry.SetPlaceHolder="Estimasi total menit (mis. 240)"
+		estEntry.SetPlaceHolder("Estimasi total menit (mis. 240)")
 		priSel := widget.NewSelect([]string{"P1 Kritis", "P2 Tinggi", "P3 Normal", "P4 Santai"}, nil)
 		priSel.SetSelected("P3 Normal")
 
