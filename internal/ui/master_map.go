@@ -3,13 +3,14 @@
 // ----------------------------------------------------------------------------
 // Tampilan "Peta Induk": satu layar yang merangkum KEENAM modul kehidupan.
 // Prinsip UX yang diimplementasikan di sini:
-//   • Color-coding konsisten → tiap kartu memakai tint + strip aksen kategori.
-//   • Hierarki visual        → judul besar, statistik ringkas, bar progres.
-//   • Quick action           → FAB "+ Tambah Quest" selalu tersedia; setiap
-//                              quest baru DAPAT dibuat dari dalam kategori
-//                              masing-masing (dialog pilih sub-modul per modul).
-//   • Dark/Light mode        → seluruh teks kustom dibangun ulang lewat
-//                              Registry saat toggle (lihat navigator.go).
+//   - Color-coding konsisten → tiap kartu memakai tint + strip aksen kategori.
+//   - Hierarki visual        → judul besar, statistik ringkas, bar progres.
+//   - Quick action           → FAB "+ Tambah Quest" selalu tersedia; setiap
+//     quest baru DAPAT dibuat dari dalam kategori
+//     masing-masing (dialog pilih sub-modul per modul).
+//   - Dark/Light mode        → seluruh teks kustom dibangun ulang lewat
+//     Registry saat toggle (lihat navigator.go).
+//
 // ============================================================================
 package ui
 
@@ -191,17 +192,11 @@ func openQuickAddQuest(sh *Shell, preferCat model.CategoryKey) {
 		priSel := widget.NewSelect([]string{"P1 Kritis", "P2 Tinggi", "P3 Normal", "P4 Santai"}, nil)
 		priSel.SetSelected("P3 Normal")
 
-		form := widget.NewForm(
-			widget.NewFormItem("Judul Quest", nameEntry),
-			widget.NewFormItem("Sub-Modul", subSel),
-			widget.NewFormItem("Prioritas", priSel),
-			widget.NewFormItem("Estimasi (menit)", estEntry),
-			widget.NewFormItem("Deskripsi", descEntry),
-		)
-
-		dlg := dialog.NewForm("➕ Quest Baru — kategori "+catName(catKey), "Simpan", "Batal", form, win)
-		dlg.Resize(fyne.NewSize(minI(win.Canvas().Size().Width-40, 520), 480))
-		dlg.OnSubmitted = func(_ fyne.CanvasObject) {
+		// save — callback dialog: validasi input lalu simpan quest + fase kerjanya.
+		save := func(ok bool) {
+			if !ok {
+				return
+			}
 			p, _ := strconv.Atoi(priSel.Selected[:2][1:])
 			est, _ := strconv.Atoi(estEntry.Text)
 			proj := model.Project{
@@ -218,7 +213,7 @@ func openQuickAddQuest(sh *Shell, preferCat model.CategoryKey) {
 				dialog.ShowError(err, win)
 				return
 			}
-			// Auto-generate 5 fase modular (Riset→Desain→Impl→Test→Dokumentasi)
+			// Auto-generate 5 fase modular (Riset->Desain->Impl->Test->Dokumentasi)
 			for k, phase := range model.DefaultSubTaskPhases {
 				t := model.SubTask{ProjectID: proj.ID, Name: phase, PhaseOrder: k + 1,
 					Status: model.TaskTodo, Complexity: model.WeightMedium}
@@ -228,6 +223,18 @@ func openQuickAddQuest(sh *Shell, preferCat model.CategoryKey) {
 			dialog.ShowInformation("Tersimpan",
 				"Quest \""+proj.Name+"\" dibuat lengkap dengan 5 fase kerjanya.", win)
 		}
+		items := []*widget.FormItem{
+			widget.NewFormItem("Judul Quest", nameEntry),
+			widget.NewFormItem("Sub-Modul", subSel),
+			widget.NewFormItem("Prioritas", priSel),
+			widget.NewFormItem("Estimasi (menit)", estEntry),
+			widget.NewFormItem("Deskripsi", descEntry),
+		}
+		dlg := dialog.NewForm("➕ Quest Baru — kategori "+catName(catKey),
+			"Simpan", "Batal", items, save, win)
+		w := minF(win.Canvas().Size().Width-40, 520)
+		h := minF(win.Canvas().Size().Height-60, 480)
+		dlg.Resize(fyne.NewSize(w, h))
 		dlg.Show()
 	}
 
@@ -273,7 +280,7 @@ func catName(k model.CategoryKey) string {
 	return string(k)
 }
 
-func minI(a, b float32) float32 {
+func minF(a, b float32) float32 {
 	if a < b {
 		return a
 	}

@@ -2,14 +2,15 @@
 // PACKAGE: state — State Management Terpusat (ringan & modular)
 // ----------------------------------------------------------------------------
 // Prinsip arsitektur (lihat LANGKAH 1 §1.5):
-//   1. SATU sumber kebenaran: struct App dipegang main.go, di-inject ke semua
-//      layar. Tidak ada singleton tersembunyi → tiap modul UI terisolasi.
-//   2. DarkMode adalah *bool — theme engine membaca pointer yang sama, sehingga
-//      toggle mode terang/gelap berlaku instan di seluruh aplikasi tanpa restart.
-//   3. Timer TIDAK menyimpan "sisa detik" di memori: cukup StartedAt &
-//      PausedAccumSec di DB; nilai live dihitung dari selisih timestamp, jadi
-//      tetap akurat walau app di-minimize / proses Android dihentikan.
-//   4. Navigasi lewat stack layar (Navigator) — lihat ui/navigator.go.
+//  1. SATU sumber kebenaran: struct App dipegang main.go, di-inject ke semua
+//     layar. Tidak ada singleton tersembunyi → tiap modul UI terisolasi.
+//  2. DarkMode adalah *bool — theme engine membaca pointer yang sama, sehingga
+//     toggle mode terang/gelap berlaku instan di seluruh aplikasi tanpa restart.
+//  3. Timer TIDAK menyimpan "sisa detik" di memori: cukup StartedAt &
+//     PausedAccumSec di DB; nilai live dihitung dari selisih timestamp, jadi
+//     tetap akurat walau app di-minimize / proses Android dihentikan.
+//  4. Navigasi lewat stack layar (Navigator) — lihat ui/navigator.go.
+//
 // ============================================================================
 package state
 

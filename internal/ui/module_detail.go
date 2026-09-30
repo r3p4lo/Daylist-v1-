@@ -122,7 +122,6 @@ func projStatusLabel(s model.ProjectStatus) string {
 
 func statusBadge(s model.ProjectStatus, dark bool) fyne.CanvasObject {
 	col := mtheme.ForegroundColor(dark)
-	bg := col
 	switch s {
 	case model.ProjInProgress:
 		return components.ChipBadge("● Berjalan", greenOf(dark), tint(greenOf(dark)))
